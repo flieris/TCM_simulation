@@ -1,17 +1,51 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Main">
+      <UniqueIdentifier>{7e5c2c79-e629-43cb-aee9-a97fcd6ce15c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="Transmitter">
+      <UniqueIdentifier>{aad7c76d-d944-4cb1-9510-92ae9fe34577}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Receiver">
+      <UniqueIdentifier>{8d142a4d-eb05-428d-ad62-35fd5fe0ae6d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Channel">
+      <UniqueIdentifier>{6829e95b-b346-46e2-bc9b-f6bfaf73a12b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generator">
+      <UniqueIdentifier>{c8fdd6bf-01d0-4baa-9a61-ef752fcbad8a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="channel.cpp">
+      <Filter>Channel</Filter>
+    </ClCompile>
+    <ClCompile Include="receiver.cpp">
+      <Filter>Receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="transmitter.cpp">
+      <Filter>Transmitter</Filter>
+    </ClCompile>
+    <ClCompile Include="generator.cpp">
+      <Filter>Generator</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="channel.h">
+      <Filter>Channel</Filter>
+    </ClInclude>
+    <ClInclude Include="receiver.h">
+      <Filter>Receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="transmitter.h">
+      <Filter>Transmitter</Filter>
+    </ClInclude>
+    <ClInclude Include="generator.h">
+      <Filter>Generator</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

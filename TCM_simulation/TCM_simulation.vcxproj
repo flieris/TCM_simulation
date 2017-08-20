@@ -110,6 +110,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="channel.cpp" />
+    <ClCompile Include="generator.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="receiver.cpp" />
+    <ClCompile Include="transmitter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="channel.h" />
+    <ClInclude Include="generator.h" />
+    <ClInclude Include="receiver.h" />
+    <ClInclude Include="transmitter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
