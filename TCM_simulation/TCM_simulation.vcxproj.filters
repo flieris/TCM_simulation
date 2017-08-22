@@ -27,11 +27,14 @@
     <ClCompile Include="receiver.cpp">
       <Filter>Receiver</Filter>
     </ClCompile>
-    <ClCompile Include="transmitter.cpp">
-      <Filter>Transmitter</Filter>
-    </ClCompile>
     <ClCompile Include="generator.cpp">
       <Filter>Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="modulator.cpp">
+      <Filter>Transmitter</Filter>
+    </ClCompile>
+    <ClCompile Include="coder.cpp">
+      <Filter>Transmitter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,11 +44,14 @@
     <ClInclude Include="receiver.h">
       <Filter>Receiver</Filter>
     </ClInclude>
-    <ClInclude Include="transmitter.h">
-      <Filter>Transmitter</Filter>
-    </ClInclude>
     <ClInclude Include="generator.h">
       <Filter>Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="modulator.h">
+      <Filter>Transmitter</Filter>
+    </ClInclude>
+    <ClInclude Include="coder.h">
+      <Filter>Transmitter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

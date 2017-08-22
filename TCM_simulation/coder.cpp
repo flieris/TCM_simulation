@@ -1,17 +1,17 @@
-#include "transmitter.h"
+#include "coder.h"
 #include <iostream>
 using namespace std;
-Transmitter::Transmitter() {
+Coder::Coder() {
    state = 0;
 }
 
 
-Transmitter::~Transmitter() {
+Coder::~Coder() {
 
 }
 
 
-unsigned int Transmitter::encode(unsigned int data) {
+unsigned int Coder::encode(unsigned int data) {
    unsigned int c0 = data >> 1;
    unsigned int c1 = (state & 1) ^ (data & 1);
    unsigned int c2 = c1 ^ (state >> 1);
@@ -22,9 +22,8 @@ unsigned int Transmitter::encode(unsigned int data) {
    return c;
 }
 
-complex<double> Transmitter::modulator(unsigned int encoded_data) {
-   //<--    TODO     -->>//
-   //Add modulator functionality 
-
-
+unsigned int Coder::getState()
+{
+   return state;
 }
+
