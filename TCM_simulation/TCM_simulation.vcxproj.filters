@@ -24,9 +24,6 @@
     <ClCompile Include="channel.cpp">
       <Filter>Channel</Filter>
     </ClCompile>
-    <ClCompile Include="receiver.cpp">
-      <Filter>Receiver</Filter>
-    </ClCompile>
     <ClCompile Include="generator.cpp">
       <Filter>Generator</Filter>
     </ClCompile>
@@ -36,13 +33,16 @@
     <ClCompile Include="coder.cpp">
       <Filter>Transmitter</Filter>
     </ClCompile>
+    <ClCompile Include="decoder.cpp">
+      <Filter>Receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="path.cpp">
+      <Filter>Receiver</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="channel.h">
       <Filter>Channel</Filter>
-    </ClInclude>
-    <ClInclude Include="receiver.h">
-      <Filter>Receiver</Filter>
     </ClInclude>
     <ClInclude Include="generator.h">
       <Filter>Generator</Filter>
@@ -52,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="coder.h">
       <Filter>Transmitter</Filter>
+    </ClInclude>
+    <ClInclude Include="decoder.h">
+      <Filter>Receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="path.h">
+      <Filter>Receiver</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

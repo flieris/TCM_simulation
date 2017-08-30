@@ -114,15 +114,17 @@
     <ClCompile Include="generator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modulator.cpp" />
-    <ClCompile Include="receiver.cpp" />
+    <ClCompile Include="decoder.cpp" />
     <ClCompile Include="coder.cpp" />
+    <ClCompile Include="path.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="channel.h" />
     <ClInclude Include="generator.h" />
     <ClInclude Include="modulator.h" />
-    <ClInclude Include="receiver.h" />
+    <ClInclude Include="decoder.h" />
     <ClInclude Include="coder.h" />
+    <ClInclude Include="path.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
