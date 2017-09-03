@@ -15,13 +15,13 @@ Decoder::Decoder() {
    _8psk_constelation->operator[](5) = std::complex<double>(-0.707, -0.707);
    _8psk_constelation->operator[](6) = std::complex<double>(0.0, -1.0);
    _8psk_constelation->operator[](7) = std::complex<double>(0.707, -0.707);
-   next_state_.push_back({ 0,2,0,2 });
-   next_state_.push_back({ 0,2,0,2 });
-   next_state_.push_back({ 1,3,1,3 });
-   next_state_.push_back({ 1,3,1,3 });
+   next_state_.push_back({ 0,1,0,1 });
+   next_state_.push_back({ 2,3,2,3 });
+   next_state_.push_back({ 1,0,1,0 });
+   next_state_.push_back({ 2,3,2,3 });
    output_state_.push_back({ 0,2,4,6 });
-   output_state_.push_back({ 2,0,6,4 });
-   output_state_.push_back({ 1,3,5,7 }); 
+   output_state_.push_back({ 1,5,3,7 });
+   output_state_.push_back({ 0,2,4,6 }); 
    output_state_.push_back({ 3,1,7,5 });
    trellis_memory_ = new std::vector<std::vector<Path*>*>{};
    //minimal_paths_ = new std::vector<Path*>();
@@ -46,11 +46,11 @@ void Decoder::decode(std::complex<double> input_data) {
          path_->input_state_ = next_state;
          path_->previous_state_ = previous_state;
          path_->next_state_ = next;
-         int output = output_state_[previous_state][next];
-         std::cout << "Output state: " << output << std::endl;
+         int output = output_state_[previous_state][next_state];
+         //std::cout << "Output state: " << output << " Path input: " << path_->input_state_<< " From state: " << path_->previous_state_ << " To state: " << path_->next_state_ << std::endl;
          // lokalna metryka sciezki (tylko pomiedzy dwoma punktami)
          auto distance = getDistance(input_data, output);
-         std::cout << "distance between 2 points: " << input_data << " and " << output << " is " << getDistance(input_data, output) << std::endl;
+         //std::cout << "distance between 2 points: " << input_data << " and " << output << " is " << getDistance(input_data, output) << std::endl;
          //dot¹d jest ok
          
          if (trellis_memory_->size() > 0) {
@@ -67,21 +67,24 @@ void Decoder::decode(std::complex<double> input_data) {
                (*minimal_paths_)[next] = path_;
             }
             
-         std::cout << "path metric: " << (*minimal_paths_)[next]->path_metric_ << std::endl;
+         //std::cout << "path metric: " << (*minimal_paths_)[next]->path_metric_ << std::endl;
       }
       
    }
    //aktualizacja pamieci metryk
-   for (int i = 0; i < 4; i++) {
-      std::cout << "path metric: " << (*minimal_paths_)[i]->path_metric_ << std::endl;
-   }
+   //for (int i = 0; i < 4; i++) {
+  //    std::cout << "path metric: " << (*minimal_paths_)[i]->path_metric_ << std::endl;
+  // }
    trellis_memory_->push_back(minimal_paths_);
    int read_index = 0, write_index = 0;
    double metric_sums_[4] = { 0.0,0.0,0.0,0.0 };
-   std::cout << "memeory size: " << trellis_memory_->size() << std::endl;
+   //std::cout << "memeory size: " << trellis_memory_->size() << std::endl;
    for (int i = 0; i < trellis_memory_->size(); i++) {
-      std::cout << "memory path size: " << trellis_memory_->operator[](i)->size() << std::endl;
+     // std::cout << "memory path size: " << trellis_memory_->operator[](i)->size() << std::endl;
       for (int j = 0; j < trellis_memory_->operator[](i)->size(); j++) {
+          //std::cout << "path metric: " << trellis_memory_->operator[](i)->operator[](j)->path_metric_ <<std::endl;
+        // std::cout << "path input: " << trellis_memory_->operator[](i)->operator[](j)->input_state_ << " path next: " << trellis_memory_->operator[](i)->operator[](j)->next_state_ <<
+        //     " path previous: " << trellis_memory_->operator[](i)->operator[](j)->previous_state_ << std::endl;
          metric_sums_[j] += trellis_memory_->operator[](i)->operator[](j)->path_metric_;
       }
    }
@@ -107,5 +110,7 @@ void Decoder::initMemory()
 double Decoder::getDistance(std::complex<double> data, int constelation_point){
    double delta_x = data.real() - _8psk_constelation->operator[](constelation_point).real();
    double delta_y = data.imag() - _8psk_constelation->operator[](constelation_point).imag();
-   return pow(abs(std::complex<double>(delta_x, delta_y)),2.0);
+   double result = floorf(abs(std::complex<double>(delta_x, delta_y))*100)/100;
+   //std::cout << "distance: " << result << std::endl;
+   return pow(result,2.0);
 }
