@@ -18,7 +18,7 @@ unsigned int Coder::encode(unsigned int data) {
    
    unsigned int c = (c0 << 2) | (c1 << 1) | c2;
    state = (state >> 1) | ((data & 1) << 1);
-   cout << state << endl;
+   //cout << state << endl;
    return c;
 }
 

@@ -8,7 +8,7 @@ public:
 
    double Random();
    double Random(int min, int max);
-
+   double Random(double min, double max);
    int getKernel();
    void setKernel(int value);
 private:
