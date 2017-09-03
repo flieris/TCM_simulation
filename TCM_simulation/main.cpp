@@ -38,13 +38,13 @@ int main() {
       exit_symbol.push_back(decoded_symbol);
       cout << "Decoded symbol = " << decoded_symbol << endl;
    }
-   fstream test_file("test.txt", std::ios::out | std::ios::binary | std::ios::trunc);
-   for (int i = 0; i < entry_symbol.size(); i++) {
-      test_file << "Entry symbol: " << entry_symbol[i];
-      test_file << " Exit symbol: " << exit_symbol[i];
-      test_file << endl;
-   }
-   test_file.close();
+  // fstream test_file("test.txt", std::ios::out | std::ios::binary | std::ios::trunc);
+   //for (int i = 0; i < entry_symbol.size(); i++) {
+  //    test_file << "Entry symbol: " << entry_symbol[i];
+  //    test_file << " Exit symbol: " << exit_symbol[i];
+ //     test_file << endl;
+ //  }
+ //  test_file.close();
    delete source_;
    delete coder_;
    delete modulator_;
