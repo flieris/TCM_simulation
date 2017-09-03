@@ -15,16 +15,31 @@ Decoder::Decoder() {
    _8psk_constelation->operator[](5) = std::complex<double>(-0.707, -0.707);
    _8psk_constelation->operator[](6) = std::complex<double>(0.0, -1.0);
    _8psk_constelation->operator[](7) = std::complex<double>(0.707, -0.707);
+
+   
    next_state_.push_back({ 0,1,0,1 });
    next_state_.push_back({ 2,3,2,3 });
    next_state_.push_back({ 1,0,1,0 });
    next_state_.push_back({ 2,3,2,3 });
    output_state_.push_back({ 0,2,4,6 });
-   output_state_.push_back({ 1,5,3,7 });
+   output_state_.push_back({ 1,3,5,7 });
    output_state_.push_back({ 0,2,4,6 }); 
    output_state_.push_back({ 3,1,7,5 });
+  
+   /*
+   next_state_.push_back({ 0,2,0,2 });
+   next_state_.push_back({ 2,0,2,0 });
+   next_state_.push_back({ 1,3,1,3 });
+   next_state_.push_back({ 3,1,3,1 });
+   output_state_.push_back({ 0,2,4,6 });
+   output_state_.push_back({ 0,2,4,6 });
+   output_state_.push_back({ 1,3,5,7 });
+   output_state_.push_back({ 3,1,7,5 });
+   */
    trellis_memory_ = new std::vector<std::vector<Path*>*>{};
-   //minimal_paths_ = new std::vector<Path*>();
+
+
+   
 }
 
 Decoder::~Decoder() {
@@ -38,62 +53,50 @@ void Decoder::decode(std::complex<double> input_data) {
    for (auto i = 0; i < 4; i++) {
       minimal_paths_->push_back(nullptr);
    }
-   for (int previous_state = 0; previous_state < 4; previous_state++) {
-      for (int next_state = 0; next_state < 4; next_state++) {
-         // nowa scie¿ka z aktualnego stanu do nastêpnego stanu
-         auto next = next_state_[previous_state][next_state];
-         Path *path_ = new Path();
-         path_->input_state_ = next_state;
-         path_->previous_state_ = previous_state;
-         path_->next_state_ = next;
-         int output = output_state_[previous_state][next_state];
-         //std::cout << "Output state: " << output << " Path input: " << path_->input_state_<< " From state: " << path_->previous_state_ << " To state: " << path_->next_state_ << std::endl;
-         // lokalna metryka sciezki (tylko pomiedzy dwoma punktami)
-         auto distance = getDistance(input_data, output);
-         //std::cout << "distance between 2 points: " << input_data << " and " << output << " is " << getDistance(input_data, output) << std::endl;
-         //dot¹d jest ok
-         
+   //calculate Euclidian distances between input signal and every point on constellation
+   auto distances = new std::vector<double>;
+   for (int i = 0; i < 8; i++) {
+      distances->push_back(getDistance(input_data, i));
+   }
+
+   for (int from_state = 0; from_state < 4; from_state++) {
+      for (int in_state = 0; in_state < 4; in_state++) {
+         Path* new_path_ = new Path();
+         new_path_->input_ = in_state;
+         new_path_->previous__ = from_state;
+         int next_state = next_state_[from_state][in_state];
+         new_path_->next_ = next_state;
+         auto out_state_ = output_state_[from_state][in_state];
+         new_path_->metric_ = (*distances)[out_state_];
+         std::cout << "Output state: " << out_state_ << " Input: " << new_path_->input_ << " Previous state: " << new_path_->previous__ << " Next state: " 
+                  << new_path_->next_ << " Local path metric: "<< new_path_->metric_ <<std::endl;
          if (trellis_memory_->size() > 0) {
-            //uwzglêdnienie metryki globalnej wraz z metryka lokalna
-            path_->path_metric_ = distance + trellis_memory_->back()->operator[](previous_state)->path_metric_;
+            new_path_->metric_ += trellis_memory_->back()->operator[](in_state)->metric_;
+            std::cout << "new metric: " << new_path_->metric_ << " from_state: " << from_state <<std::endl;
          }
-         else {
-            path_->path_metric_ = distance;
+         if ((*minimal_paths_)[next_state] == nullptr) {
+            (*minimal_paths_)[next_state] = new_path_;
          }
-         if ((*minimal_paths_)[next] == nullptr) {
-            (*minimal_paths_)[next] = path_;
-         }
-         else if ((*minimal_paths_)[next]->path_metric_ > path_->path_metric_) {
-               (*minimal_paths_)[next] = path_;
+         else
+            if ((*minimal_paths_)[next_state]->metric_ > new_path_->metric_) {
+               (*minimal_paths_)[next_state] = new_path_;
             }
-            
-         //std::cout << "path metric: " << (*minimal_paths_)[next]->path_metric_ << std::endl;
       }
-      
    }
-   //aktualizacja pamieci metryk
-   //for (int i = 0; i < 4; i++) {
-  //    std::cout << "path metric: " << (*minimal_paths_)[i]->path_metric_ << std::endl;
-  // }
    trellis_memory_->push_back(minimal_paths_);
-   int read_index = 0, write_index = 0;
-   double metric_sums_[4] = { 0.0,0.0,0.0,0.0 };
-   //std::cout << "memeory size: " << trellis_memory_->size() << std::endl;
-   for (int i = 0; i < trellis_memory_->size(); i++) {
-     // std::cout << "memory path size: " << trellis_memory_->operator[](i)->size() << std::endl;
-      for (int j = 0; j < trellis_memory_->operator[](i)->size(); j++) {
-          //std::cout << "path metric: " << trellis_memory_->operator[](i)->operator[](j)->path_metric_ <<std::endl;
-        // std::cout << "path input: " << trellis_memory_->operator[](i)->operator[](j)->input_state_ << " path next: " << trellis_memory_->operator[](i)->operator[](j)->next_state_ <<
-        //     " path previous: " << trellis_memory_->operator[](i)->operator[](j)->previous_state_ << std::endl;
-         metric_sums_[j] += trellis_memory_->operator[](i)->operator[](j)->path_metric_;
-      }
+   auto sums_ = new std::vector<double>;
+   for (auto i = 0; i < 4; i++) {
+      sums_->push_back(0.0);
    }
-   int mininal_index = 0;
-   for (int i = 0; i < 4; i++) {
-      if (metric_sums_[i] < metric_sums_[mininal_index]) {
-         mininal_index = i;
-      }
-      std::cout << "Metric sums in: " << i << ' ' << metric_sums_[i] << std::endl;
+   for (int i = 0; i < trellis_memory_->size(); i++) {
+      for (int j = 0; j < trellis_memory_->operator[](i)->size(); j++) {
+         std::cout << "Metrics in memeory: " << trellis_memory_->operator[](i)->operator[](j)->metric_ << " Previous state: "<< trellis_memory_->operator[](i)->operator[](j)->previous__
+            << " Next state: " << trellis_memory_->operator[](i)->operator[](j)->next_ << " Input state: " << trellis_memory_->operator[](i)->operator[](j)->input_ <<std::endl;
+         sums_->operator[](j) += trellis_memory_->operator[](i)->operator[](j)->metric_;
+      }  
+   }
+   for (auto i = 0; i < 4; i++) {
+      std::cout << "Sum of metrics for path: " << i << " : " << sums_->operator[](i) << std::endl;
    }
 }
 
@@ -110,7 +113,8 @@ void Decoder::initMemory()
 double Decoder::getDistance(std::complex<double> data, int constelation_point){
    double delta_x = data.real() - _8psk_constelation->operator[](constelation_point).real();
    double delta_y = data.imag() - _8psk_constelation->operator[](constelation_point).imag();
-   double result = floorf(abs(std::complex<double>(delta_x, delta_y))*100)/100;
+   //double result = floorf(abs(std::complex<double>(delta_x, delta_y))*100)/100;
    //std::cout << "distance: " << result << std::endl;
-   return pow(result,2.0);
+  // return pow(result,2.0);
+   return abs(std::complex<double>(delta_x, delta_y));
 }

@@ -22,8 +22,8 @@ int main() {
    std::vector<int> entry_symbol, exit_symbol;
    
    cout << "Conducting test" << endl;
-   for (int i = 0; i < 5; ++i) {
-      symbol = static_cast<int>(source_->Random(0,4));
+   for (int i = 0; i < 500; ++i) {
+      symbol = static_cast<int>(source_->Random(0, 4));
       entry_symbol.push_back(symbol);
       cout << "Symbol = " << symbol << endl;
       encoded_symbol = coder_->encode(symbol);
@@ -36,7 +36,7 @@ int main() {
       decoder->decode(modulated);
       decoded_symbol = decoder->getDecodedData();
       exit_symbol.push_back(decoded_symbol);
-      cout << "Decoded symbol = " << decoder->getDecodedData() << endl;
+      cout << "Decoded symbol = " << decoded_symbol << endl;
    }
    fstream test_file("test.txt", std::ios::out | std::ios::binary | std::ios::trunc);
    for (int i = 0; i < entry_symbol.size(); i++) {
