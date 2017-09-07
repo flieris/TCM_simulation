@@ -4,7 +4,7 @@
 struct Path {
 public:
 
-   int previous__;
+   int previous_;
    int next_;
    double metric_;
    int input_;

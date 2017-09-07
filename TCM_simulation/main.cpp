@@ -23,7 +23,7 @@ int main() {
    std::vector<int> entry_symbol, exit_symbol;
    
    cout << "Conducting test" << endl;
-   for (int i = 0; i < 5; ++i) {
+   for (int i = 0; i < 50; ++i) {
       symbol = static_cast<int>(source_->Random(0, 4));
       entry_symbol.push_back(symbol);
       cout << "Symbol = " << symbol << endl;
@@ -31,7 +31,7 @@ int main() {
       cout << "Encoded symbol = "<< encoded_symbol << endl;
       modulator_->modulate(encoded_symbol);
       modulated = modulator_->getOutputData();
-      noisy = channel->noisify(modulated);
+      //noisy = channel->noisify(modulated);
       //cout << "Data after noisy channel: " << noisy << endl;
       cout << "Symbol after 8PSK modulation = " << modulator_->getOutputData() << endl;
       decoder->decode(modulated);
