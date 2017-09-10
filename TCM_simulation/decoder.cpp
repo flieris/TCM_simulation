@@ -16,7 +16,7 @@ Decoder::Decoder() {
    _8psk_constelation->operator[](5) = std::complex<double>(-0.707, -0.707);
    _8psk_constelation->operator[](6) = std::complex<double>(0.0, -1.0);
    _8psk_constelation->operator[](7) = std::complex<double>(0.707, -0.707);
-   decoded_data = 0;
+   decoded_data = new std::vector<int>;
    
    // trellis info:
    // next state
@@ -54,57 +54,62 @@ Decoder::~Decoder() {
    delete _8psk_constelation;
 }
 
-void Decoder::decode(std::complex<double> input_data) {
+void Decoder::decode(std::vector<std::complex<double>> *input_stream) {
    //calculate Euclidian distances between input signal and every point on constellation
-   auto distances = new std::vector<double>;
-   for (int i = 0; i < 8; i++) {
-      distances->push_back(getDistance(input_data, i));
-   }
-   for (int from_state = 0; from_state < num_of_states_; ++from_state) {
-      int minimal_path_index = 0;
-      double minimal_path_cost = (*distances)[output_state_[from_state][0]] +
-         metrics_[begin_state_[from_state][0]];
-      for (int input_state = 0; input_state < num_of_states_; ++input_state) {
-         double cost = metrics_[begin_state_[from_state][input_state]];
-         cost += (*distances)[output_state_[from_state][input_state]];
-         if (cost < minimal_path_cost) {
-            minimal_path_cost = cost;
-            minimal_path_index = input_state;
+   for (int index = 0; index < input_stream->size(); ++index) {
+      std::complex<double> input_data = input_stream->operator[](index);
+      auto distances = new std::vector<double>;
+      for (int i = 0; i < 8; i++) {
+         distances->push_back(getDistance(input_data, i));
+      }
+      for (int from_state = 0; from_state < num_of_states_; ++from_state) {
+         int minimal_path_index = 0;
+         double minimal_path_cost = (*distances)[output_state_[from_state][0]] +
+            metrics_[begin_state_[from_state][0]];
+         for (int input_state = 0; input_state < num_of_states_; ++input_state) {
+            double cost = metrics_[begin_state_[from_state][input_state]];
+            cost += (*distances)[output_state_[from_state][input_state]];
+            if (cost < minimal_path_cost) {
+               minimal_path_cost = cost;
+               minimal_path_index = input_state;
+            }
+         }
+         Path new_path;
+         new_path.input_ = input_state_[from_state][minimal_path_index];
+         new_path.metric_ = minimal_path_cost;
+         new_path.previous_ = begin_state_[from_state][minimal_path_index];
+         trellis_[from_state].push_back(new_path);
+
+         if (!(index < trellis_depth_)) {
+            trellis_[from_state].erase(trellis_[from_state].begin());
          }
       }
-      Path new_path;
-      new_path.input_ = input_state_[from_state][minimal_path_index];
-      new_path.metric_ = minimal_path_cost;
-      new_path.previous_ = begin_state_[from_state][minimal_path_index];
-      trellis_[from_state].push_back(new_path);
-      if (trellis_.size() > trellis_depth_) {
-         trellis_[from_state].erase(trellis_[from_state].begin());
-      }
-   }
 
-   for (int i = 0; i < num_of_states_; ++i) {
-      metrics_[i] = trellis_[i].back().metric_;
-   }
-   int minimal_index = 0;
-   double minimal_cost = metrics_[0];
-   for (int i = 1; i < num_of_states_; ++i) {
-      if (metrics_[i] < minimal_cost) {
-         minimal_cost = metrics_[i];
-         minimal_index = i;
+      for (int i = 0; i < num_of_states_; ++i) {
+         metrics_[i] = trellis_[i].back().metric_;
       }
+      if (index < trellis_depth_ - 1) {
+         continue;
+      }
+      int minimal_index = 0;
+      double minimal_cost = metrics_[0];
+      for (int i = 1; i < num_of_states_; ++i) {
+         if (metrics_[i] < minimal_cost) {
+            minimal_cost = metrics_[i];
+            minimal_index = i;
+         }
+      }
+      int current = minimal_index;
+      for (int i = trellis_[minimal_index].size() - 1; i > 0; --i) {
+         current = trellis_[current][i].previous_;
+      }
+      int temp = index - trellis_depth_ + 2;
+      (*decoded_data).push_back(trellis_[current].front().input_);
+      //std::reverse(std::begin(*decoded_data), std::end(*decoded_data));
    }
-   int current = minimal_index;
-   for (int i = trellis_[minimal_index].size() - 1; i > 0; --i) {
-      current = trellis_[current][i].previous_;
-      //std::cout << trellis_[current][i].metric_ << std::endl;
-   }
-   std::cout << trellis_[current].front().input_ << std::endl;
-   decoded_data = trellis_[current].front().input_;
-   //trellis_memory_->push_back(minimal_paths_);
 }
 
-int Decoder::getDecodedData() {
-
+std::vector<int>* Decoder::getDecodedData() {
    return decoded_data;
 }
 
