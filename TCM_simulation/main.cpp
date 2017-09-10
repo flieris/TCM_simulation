@@ -23,7 +23,7 @@ int main() {
    std::vector<int> entry_symbol, exit_symbol;
    
    cout << "Conducting test" << endl;
-   for (int i = 0; i < 50; ++i) {
+   for (int i = 0; i < 500; ++i) {
       symbol = static_cast<int>(source_->Random(0, 4));
       entry_symbol.push_back(symbol);
       cout << "Symbol = " << symbol << endl;

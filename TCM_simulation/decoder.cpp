@@ -18,33 +18,36 @@ Decoder::Decoder() {
    _8psk_constelation->operator[](7) = std::complex<double>(0.707, -0.707);
    decoded_data = 0;
    
-   next_state_.push_back({ 0,1,0,1 });
-   next_state_.push_back({ 2,3,2,3 });
-   next_state_.push_back({ 1,0,1,0 });
-   next_state_.push_back({ 2,3,2,3 });
-   output_state_.push_back({ 0,2,4,6 });
-   output_state_.push_back({ 1,3,5,7 });
-   output_state_.push_back({ 0,2,4,6 }); 
-   output_state_.push_back({ 3,1,7,5 });
-  
-   /*
-   next_state_.push_back({ 0,2,0,2 });
-   next_state_.push_back({ 2,0,2,0 });
-   next_state_.push_back({ 1,3,1,3 });
-   next_state_.push_back({ 3,1,3,1 });
-   output_state_.push_back({ 0,2,4,6 });
-   output_state_.push_back({ 0,2,4,6 });
-   output_state_.push_back({ 1,3,5,7 });
-   output_state_.push_back({ 3,1,7,5 });
-   */
-   trellis_index_ = 1;
-   // trellis memory: matrix with 4 rows and 45 columns
-   for (int i = 0; i < k_NUMBER_OF_STATES; i++) {
-      for (int j = 0; j < k_TRELLIS_DEPTH; j++) {
-         trellis_memory_[i][j] = nullptr;
-
-      }
+   // trellis info:
+   // next state
+   next_state_.push_back({ 0,0,1,1 });
+   next_state_.push_back({ 2,2,3,3 });
+   next_state_.push_back({ 0,0,1,1 });
+   next_state_.push_back({ 2,2,3,3 });
+   // output state
+   output_state_.push_back({ 0,4,2,6 });
+   output_state_.push_back({ 1,5,3,7 });
+   output_state_.push_back({ 2,6,0,4 }); 
+   output_state_.push_back({ 3,7,1,5 });
+   // input state
+   input_state_.push_back({ 0,2,1,3 });
+   input_state_.push_back({ 0,2,1,3 });
+   input_state_.push_back({ 0,2,1,3 });
+   input_state_.push_back({ 0,2,1,3 });
+   // begin state
+   begin_state_.push_back({ 0,0,0,0 });
+   begin_state_.push_back({ 1,1,1,1 });
+   begin_state_.push_back({ 2,2,2,2 });
+   begin_state_.push_back({ 3,3,3,3 });
+   // create trellis vector
+   for (int i = 0; i < num_of_states_; ++i) {
+      trellis_.push_back(std::vector<Path>());
    }
+
+   for (int i = 0; i < num_of_states_; ++i) {
+      metrics_.push_back(9999.0);
+   }
+   metrics_[0] = 0.0;
 }
 
 Decoder::~Decoder() {
@@ -57,70 +60,46 @@ void Decoder::decode(std::complex<double> input_data) {
    for (int i = 0; i < 8; i++) {
       distances->push_back(getDistance(input_data, i));
    }
-   // testing right now -- local path array that saves EVERY path for further computation
-   Path *hand_[4][4];
-   for (int i = 0; i < k_NUMBER_OF_STATES; i++) {
-      for (int j = 0; j < k_NUMBER_OF_STATES; j++) {
-         hand_[i][j] = nullptr;
-      }
-   }
-   for (int from_state = 0; from_state < k_NUMBER_OF_STATES; ++from_state) {
-      for (int in_state = 0; in_state < k_NUMBER_OF_STATES; ++in_state) {
-         Path* new_path_ = new Path();
-         new_path_->input_ = in_state;
-         new_path_->previous_ = from_state;
-         int next_state = next_state_[from_state][in_state];
-         new_path_->next_ = next_state;
-         auto out_state_ = output_state_[from_state][in_state];
-         new_path_->metric_ = (*distances)[out_state_];
-         hand_[from_state][in_state] = new_path_;
-         //std::cout << "Output state: " << out_state_ << " Input: " << new_path_->input_ << " Previous state: " << new_path_->previous__ << " Next state: " 
-                  //<< new_path_->next_ << " Local path metric: "<< new_path_->metric_ <<std::endl;
-      }
-   }
-   for (int from_state = 0; from_state < k_NUMBER_OF_STATES; ++from_state) {
-      for (int in_state = 0; in_state < k_NUMBER_OF_STATES; ++in_state) {
-         std::cout << "Input: " << hand_[from_state][in_state]->input_ << " Previous state: " << hand_[from_state][in_state]->previous_
-            << " Next state: " << hand_[from_state][in_state]->next_ << " Local metric: " << hand_[from_state][in_state]->metric_ << std::endl;
-      }
-   }
-   //std::cout << trellis_memory_->size() << std::endl;
-   // now we should look which path is the best (the cheapest) 
-   for (int i = 0; i < k_NUMBER_OF_STATES; i++) {
-      // each previous state has 4 possible paths to 2 different states + trellis_memory_->operator[](i)->operator[](read_index_)->metric_
-      for (int j = 0; j < k_NUMBER_OF_STATES; j++) {
-         if (trellis_memory_[i][trellis_index_-1] != nullptr) {
-            hand_[i][j]->metric_ += trellis_memory_[i][trellis_index_-1]->metric_;
-            if (trellis_memory_[i][trellis_index_] == nullptr) {
-               trellis_memory_[i][trellis_index_] = hand_[i][j];
-            }
-            else {
-               if (trellis_memory_[i][trellis_index_ - 1]->metric_ > trellis_memory_[i][trellis_index_]->metric_) {
-                  trellis_memory_[i][trellis_index_] = hand_[i][j];
-               }
-               if (trellis_memory_[i][trellis_index_]->metric_ > hand_[i][j]->metric_) {
-                  trellis_memory_[i][trellis_index_] = hand_[i][j];
-               }
-            }
+   for (int from_state = 0; from_state < num_of_states_; ++from_state) {
+      int minimal_path_index = 0;
+      double minimal_path_cost = (*distances)[output_state_[from_state][0]] +
+         metrics_[begin_state_[from_state][0]];
+      for (int input_state = 0; input_state < num_of_states_; ++input_state) {
+         double cost = metrics_[begin_state_[from_state][input_state]];
+         cost += (*distances)[output_state_[from_state][input_state]];
+         if (cost < minimal_path_cost) {
+            minimal_path_cost = cost;
+            minimal_path_index = input_state;
          }
-         else {
-            trellis_memory_[i][trellis_index_] = hand_[i][j];
-         } 
       }
-      std::cout << "Best path from state: " << i << " is: " << trellis_memory_[i][trellis_index_]->metric_
-         << " and leads to state: " << trellis_memory_[i][trellis_index_]->next_ << " and input: " << trellis_memory_[i][trellis_index_]->input_ 
-         << " just for testing: " << trellis_memory_[i][trellis_index_]->previous_ << std::endl;
-   }
-   if (trellis_index_ < 44) {
-      trellis_index_++;
-   }
-   else {
-      trellis_index_ = 1;
-      for (int i = 0; i < k_NUMBER_OF_STATES; i++) {
-         trellis_memory_[i][0] = trellis_memory_[i][44];
+      Path new_path;
+      new_path.input_ = input_state_[from_state][minimal_path_index];
+      new_path.metric_ = minimal_path_cost;
+      new_path.previous_ = begin_state_[from_state][minimal_path_index];
+      trellis_[from_state].push_back(new_path);
+      if (trellis_.size() > trellis_depth_) {
+         trellis_[from_state].erase(trellis_[from_state].begin());
       }
+   }
 
+   for (int i = 0; i < num_of_states_; ++i) {
+      metrics_[i] = trellis_[i].back().metric_;
    }
+   int minimal_index = 0;
+   double minimal_cost = metrics_[0];
+   for (int i = 1; i < num_of_states_; ++i) {
+      if (metrics_[i] < minimal_cost) {
+         minimal_cost = metrics_[i];
+         minimal_index = i;
+      }
+   }
+   int current = minimal_index;
+   for (int i = trellis_[minimal_index].size() - 1; i > 0; --i) {
+      current = trellis_[current][i].previous_;
+      //std::cout << trellis_[current][i].metric_ << std::endl;
+   }
+   std::cout << trellis_[current].front().input_ << std::endl;
+   decoded_data = trellis_[current].front().input_;
    //trellis_memory_->push_back(minimal_paths_);
 }
 
@@ -129,16 +108,11 @@ int Decoder::getDecodedData() {
    return decoded_data;
 }
 
-void Decoder::initMemory()
-{
-  
-}
-
 double Decoder::getDistance(std::complex<double> data, int constelation_point){
    double delta_x = data.real() - _8psk_constelation->operator[](constelation_point).real();
    double delta_y = data.imag() - _8psk_constelation->operator[](constelation_point).imag();
-   //double result = floorf(abs(std::complex<double>(delta_x, delta_y))*100)/100;
+   double result = floorf(abs(std::complex<double>(delta_x, delta_y))*100)/100;
    //std::cout << "distance: " << result << std::endl;
-  // return pow(result,2.0);
-   return abs(std::complex<double>(delta_x, delta_y));
+   return pow(result,2.0);
+   //return abs(std::complex<double>(delta_x, delta_y));
 }
