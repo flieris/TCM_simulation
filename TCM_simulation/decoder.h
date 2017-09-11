@@ -27,7 +27,7 @@ private:
    std::vector<std::vector<int>> output_state_;
    std::vector<std::vector<int>> input_state_;
    std::vector<std::vector<int>> begin_state_;
-   std::vector<std::vector<Path>> trellis_;
+   std::vector<std::vector<Path*>>trellis_;
    std::vector<double> metrics_;
   // std::vector<Path*> *minimal_paths_;
    int decoded_data;
