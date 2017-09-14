@@ -2,11 +2,11 @@
 #define path_h
 
 struct Path {
-public:
+//public:
 
-   int previous_;
-   int next_;
-   double metric_;
-   int input_;
+   int previous_ = 0;
+   int next_ = 0;
+   double metric_ = 0.0;
+   int input_ = 0;
 };
 #endif // !path_h
