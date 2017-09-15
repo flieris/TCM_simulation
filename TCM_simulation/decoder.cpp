@@ -91,15 +91,22 @@ void Decoder::decode(complex<double> input_data) {
    }
    for (int i = 0; i < num_of_states_; ++i) {
       trellis_[pathways[i]].push_back(path_metrics->operator[](i));
-   }
+   }/*
    for (int i = 0; i < trellis_.size(); ++i) {
       cout << "Path stats: from state: " << trellis_[i].back()->previous_ << " to state: " << trellis_[i].back()->next_ << " input: " << trellis_[i].back()->input_ << " metric: " << trellis_[i].back()->metric_ << endl;
      
-   }
+   }*/
 }
 
 int Decoder::getDecodedData() {
    // implement trellis decision
+   int min_index = 0;
+   for (int i = 0; i < trellis_.size(); ++i) {
+      if (trellis_[min_index].back()->metric_ > trellis_[i].back()->metric_) {
+         min_index = i;
+      }
+   }
+   decoded_data = trellis_[min_index].back()->input_;
    return decoded_data;
 }
 
