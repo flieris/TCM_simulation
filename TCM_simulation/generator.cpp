@@ -24,7 +24,7 @@ double Generator::Random(int min, int max) {
    return Random()*(int)(max - min) + min;
 }
 
-double Generator::Random(double min, double max) {
+double Generator::RandomVar(double min, double max) {
    return Random()*(double)(max - min) + min;
 }
 int Generator::getKernel() {
