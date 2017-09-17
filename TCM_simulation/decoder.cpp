@@ -42,11 +42,6 @@ Decoder::~Decoder() {
 }
 
 void Decoder::decode(complex<double> input_data) {
-   //calculate Euclidian distances between input signal and every point on constellation
-   auto distances = new vector<double>;
-   for (int i = 0; i < 8; i++) {
-      distances->push_back(getDistance(input_data, i));
-   }
    int pathways[4] = { 0,0,0,0 };
    vector<Path*> *path_metrics = new vector<Path*>;
    path_metrics->clear();
@@ -65,22 +60,28 @@ void Decoder::decode(complex<double> input_data) {
          new_path->next_ = next;
          double output_ = output_state_[from_state][input_state];
          new_path->metric_ = getDistance(input_data, output_);
+         if (trellis_[from_state].size() > 0) {
+            double cost = new_path->metric_ + trellis_[from_state].back()->metric_;
+            new_path->metric_ = cost;
+         }
          if ((*state_metrics)[input_state] == nullptr) {
             (*state_metrics)[input_state] = new_path;
          }
          else {
-
+            if ((*state_metrics)[input_state]->metric_ > new_path->metric_) {
+               (*state_metrics)[input_state] = new_path;
+            }
          }
       }
        int min_index = 0;
-       
+       /*
        for (int j = 0; j < num_of_states_; ++j) {
           if (trellis_[(*state_metrics)[j]->next_].size() > 0) {
              double cost = (*state_metrics)[j]->metric_ + trellis_[from_state].back()->metric_;
              (*state_metrics)[j]->metric_ = cost;
           }
-       }
-       for (int i = 1; i < num_of_states_; ++i) {
+       }*/
+       for (int i = 0; i < num_of_states_; ++i) {
           if ((*state_metrics)[i]->metric_ < (*state_metrics)[min_index]->metric_) {
              min_index = i;
          }
@@ -88,10 +89,13 @@ void Decoder::decode(complex<double> input_data) {
       minimal_path = (*state_metrics)[min_index];
       path_metrics->push_back(minimal_path);
       pathways[from_state] = minimal_path->next_;
+
+      //trellis_[from_state].push_back(minimal_path);
    }
    for (int i = 0; i < num_of_states_; ++i) {
       trellis_[pathways[i]].push_back(path_metrics->operator[](i));
-   }/*
+   }
+   /*
    for (int i = 0; i < trellis_.size(); ++i) {
       cout << "Path stats: from state: " << trellis_[i].back()->previous_ << " to state: " << trellis_[i].back()->next_ << " input: " << trellis_[i].back()->input_ << " metric: " << trellis_[i].back()->metric_ << endl;
      
@@ -99,20 +103,43 @@ void Decoder::decode(complex<double> input_data) {
 }
 
 int Decoder::getDecodedData() {
-   // implement trellis decision
+   double metric_sum[4] = { 0.0,0.0,0.0,0.0 };
+   for (int i = 0; i < trellis_.size(); i++) {
+      for (int j = 0; j < trellis_[i].size(); j++) {
+         metric_sum[i] = metric_sum[i] + trellis_[i][j]->metric_;
+      }
+   }  
+   int min_index = 0;
+   for (int i = 0; i < trellis_.size(); ++i) {
+      if (metric_sum[min_index] > metric_sum[i]) {
+         min_index = i;
+      }
+   }
+   Path *min_ = trellis_[trellis_.size() - 1][min_index];
+   for (int i = 0; i < trellis_[trellis_.size() - 1].size(); i++) {
+      if (trellis_[trellis_.size() - 1][i]->metric_ < min_->metric_) {
+         min_ = trellis_[trellis_.size() - 1][i];
+      }
+   }
+   decoded_data = trellis_[trellis_.size() - 1][min_->previous_]->input_;
+   //decoded_data = trellis_[min_index].back()->input_;
+   return decoded_data;
+}
+
+int Decoder::getDecodedData(int offset_) {
    int min_index = 0;
    for (int i = 0; i < trellis_.size(); ++i) {
       if (trellis_[min_index].back()->metric_ > trellis_[i].back()->metric_) {
          min_index = i;
       }
    }
-   decoded_data = trellis_[min_index].back()->input_;
+   decoded_data = trellis_[min_index][offset_]->input_;
    return decoded_data;
 }
-
 double Decoder::getDistance(complex<double> data, int constelation_point){
    double delta_x = data.real() - _8psk_constelation->operator[](constelation_point).real();
    double delta_y = data.imag() - _8psk_constelation->operator[](constelation_point).imag();
    double result = floorf(abs(complex<double>(delta_x, delta_y))*100)/100;
    return pow(result,2.0);
+   //return abs(complex<double>(delta_x, delta_y));
 }

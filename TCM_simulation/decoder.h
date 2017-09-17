@@ -14,7 +14,7 @@ public:
 
    void decode(std::complex<double> input_data);
    int getDecodedData();
-
+   int getDecodedData(int offset_);
    double getDistance(std::complex<double> data, int constelation_point);
 
 private:
