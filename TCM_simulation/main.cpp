@@ -28,7 +28,7 @@ int main() {
    Generator *source_ = new Generator(123);
    Coder *coder_ = new Coder();
    Modulator *modulator_ = new Modulator();
-   Channel *channel = new Channel(10);
+   Channel *channel = new Channel(25);
    Decoder *decoder = new Decoder();
    complex<double> check, modulated, noisy;
    unsigned int symbol, encoded_symbol, decoded_symbol;

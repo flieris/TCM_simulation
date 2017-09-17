@@ -103,26 +103,13 @@ void Decoder::decode(complex<double> input_data) {
 }
 
 int Decoder::getDecodedData() {
-   double metric_sum[4] = { 0.0,0.0,0.0,0.0 };
-   for (int i = 0; i < trellis_.size(); i++) {
-      for (int j = 0; j < trellis_[i].size(); j++) {
-         metric_sum[i] = metric_sum[i] + trellis_[i][j]->metric_;
-      }
-   }  
    int min_index = 0;
    for (int i = 0; i < trellis_.size(); ++i) {
-      if (metric_sum[min_index] > metric_sum[i]) {
+      if (trellis_[min_index].back()->metric_ > trellis_[i].back()->metric_) {
          min_index = i;
       }
    }
-   Path *min_ = trellis_[trellis_.size() - 1][min_index];
-   for (int i = 0; i < trellis_[trellis_.size() - 1].size(); i++) {
-      if (trellis_[trellis_.size() - 1][i]->metric_ < min_->metric_) {
-         min_ = trellis_[trellis_.size() - 1][i];
-      }
-   }
-   decoded_data = trellis_[trellis_.size() - 1][min_->previous_]->input_;
-   //decoded_data = trellis_[min_index].back()->input_;
+   decoded_data = trellis_[min_index].back()->input_;
    return decoded_data;
 }
 
