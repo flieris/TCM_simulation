@@ -4,17 +4,18 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+# define M_PI           3.14159265358979323846
 using namespace std;
 Decoder::Decoder() {
    _8psk_constelation = new map<int, complex<double>>;
    _8psk_constelation->operator[](0) = complex<double>(1.0, 0.0);
-   _8psk_constelation->operator[](1) = complex<double>(0.707, 0.707);
+   _8psk_constelation->operator[](1) = complex<double>(cos(M_PI / 4.0), sin(M_PI / 4.0));
    _8psk_constelation->operator[](2) = complex<double>(0.0, 1.0);
-   _8psk_constelation->operator[](3) = complex<double>(-0.707, 0.707);
+   _8psk_constelation->operator[](3) = complex<double>(-cos(M_PI / 4.0), sin(M_PI / 4.0));
    _8psk_constelation->operator[](4) = complex<double>(-1.0, 0.0);
-   _8psk_constelation->operator[](5) = complex<double>(-0.707, -0.707);
+   _8psk_constelation->operator[](5) = complex<double>(-cos(M_PI / 4.0), -sin(M_PI / 4.0));
    _8psk_constelation->operator[](6) = complex<double>(0.0, -1.0);
-   _8psk_constelation->operator[](7) = complex<double>(0.707, -0.707);
+   _8psk_constelation->operator[](7) = complex<double>(cos(M_PI / 4.0), -sin(M_PI / 4.0));
    decoded_data = 0;
    
    // trellis info:
@@ -134,9 +135,9 @@ int Decoder::getDecodedData(int offset_) {
    return decoded_data;
 }
 double Decoder::getDistance(complex<double> data, int constelation_point){
-   double delta_x = data.real() - _8psk_constelation->operator[](constelation_point).real();
-   double delta_y = data.imag() - _8psk_constelation->operator[](constelation_point).imag();
-   double result = floorf(abs(complex<double>(delta_x, delta_y))*100)/100;
+   double delta_x =  _8psk_constelation->operator[](constelation_point).real() - data.real();
+   double delta_y =  _8psk_constelation->operator[](constelation_point).imag() - data.imag();
+  double result = floor(abs(complex<double>(delta_x, delta_y))*10000)/10000;
    return pow(result,2.0);
    //return abs(complex<double>(delta_x, delta_y));
 }
