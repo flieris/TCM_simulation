@@ -19,6 +19,16 @@ Decoder::Decoder() {
    
    // trellis info:
    // next state
+   output_state_.push_back({ 0,2,4,6 });
+   output_state_.push_back({ 2,0,6,4 });
+   output_state_.push_back({ 1,3,5,7 });
+   output_state_.push_back({ 3,1,7,5 });
+
+   next_state_.push_back({ 0,2,0,2 });
+   next_state_.push_back({ 0,2,0,2 });
+   next_state_.push_back({ 1,3,1,3 });
+   next_state_.push_back({ 1,3,1,3 });
+   /*
    next_state_.push_back({ 0,1,0,1 });
    next_state_.push_back({ 2,3,2,3 }); 
    next_state_.push_back({ 0,1,0,1 }); 
@@ -27,7 +37,7 @@ Decoder::Decoder() {
    output_state_.push_back({ 0,2,4,6 });
    output_state_.push_back({ 1,3,5,7 }); 
    output_state_.push_back({ 2,0,6,4 }); 
-   output_state_.push_back({ 3,1,7,5 });
+   output_state_.push_back({ 3,1,7,5 });*/
    // create trellis vector
    for (int i = 0; i < num_of_states_; ++i)
       trellis_.push_back(vector<Path*>());
