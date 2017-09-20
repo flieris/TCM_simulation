@@ -29,39 +29,35 @@ int main() {
    {
       double snrr = simnum*0.5;
       std::cout << "Simulation number: " << simnum << " SNR value: " << snrr << endl;
-   int error_count = 0, correct_count = 0;;
-   Generator *source_ = new Generator(seeds[sim_index]); // test file na 2
-   Coder *coder_ = new Coder();
-   Modulator *modulator_ = new Modulator();
-   Channel *channel = new Channel(snrr);
-   Decoder *decoder = new Decoder();
-   complex<double> check, modulated, noisy;
-   unsigned int symbol, encoded_symbol, decoded_symbol;
-   double noise_real, noise_imag;
-   std::vector<int> entry_symbol, exit_symbol;
-   int index = 0;
-   std::cout << "Conducting test" << endl;
-   while (error_count < 100) {
-      index++;
-      //if (index > 100000) break;
-      symbol = static_cast<int>(source_->Random(0, 4));
-      entry_symbol.push_back(symbol);
-      encoded_symbol = coder_->encode(symbol);
-      modulator_->modulate(encoded_symbol);
-      modulated = modulator_->getOutputData();
-      noisy = channel->noisify(modulated);
-      decoder->decode(noisy);
-      decoded_symbol = decoder->getDecodedData();
-      calculateBitErrorRate(symbol, decoded_symbol, error_count, correct_count);
+      int error_count = 0, correct_count = 0;;
+      Generator *source_ = new Generator(seeds[sim_index]); 
+      Coder *coder_ = new Coder();
+      Modulator *modulator_ = new Modulator();
+      Channel *channel = new Channel(snrr);
+      Decoder *decoder = new Decoder();
+      complex<double> check, modulated, noisy;
+      unsigned int symbol, encoded_symbol, decoded_symbol;
+      int index = 0;
+      std::cout << "Conducting test" << endl;
+      while (error_count < 100) {
+         index++;
+         symbol = static_cast<int>(source_->Random(0, 4));
+         encoded_symbol = coder_->encode(symbol);
+         modulator_->modulate(encoded_symbol);
+         modulated = modulator_->getOutputData();
+         noisy = channel->noisify(modulated);
+         decoder->decode(noisy);
+         decoded_symbol = decoder->getDecodedData();
+         calculateBitErrorRate(symbol, decoded_symbol, error_count, correct_count);
+      }
+      double ber_ = (double)error_count / (error_count + correct_count);
+      std::cout << "Error count: " << ber_ << " After " << index << " loop iterations" << endl;
+      delete source_;
+      delete coder_;
+      delete modulator_;
+      delete channel;
+      delete decoder;
    }
-   double ber_ = (double)error_count / entry_symbol.size();
-   std::cout << "Error count: " << ber_ << " After " << index << " loop iterations" << endl;
-   delete source_;
-   delete coder_;
-   delete modulator_;
-   delete channel;
-   delete decoder;
-}
 
    system("pause");
 }

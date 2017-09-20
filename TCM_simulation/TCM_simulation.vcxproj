@@ -116,7 +116,6 @@
     <ClCompile Include="modulator.cpp" />
     <ClCompile Include="decoder.cpp" />
     <ClCompile Include="coder.cpp" />
-    <ClCompile Include="path.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="channel.h" />

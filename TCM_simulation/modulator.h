@@ -12,7 +12,7 @@ public:
 
    std::complex<double> getOutputData();
 private:
-   std::map<int,std::complex<double>> *_8psk_constelation;
+   std::map<int,std::complex<double>> *_8psk_constellation;
    std::complex<double> output_data;
 };
 #endif // !modulator_h

@@ -36,9 +36,6 @@
     <ClCompile Include="decoder.cpp">
       <Filter>Receiver</Filter>
     </ClCompile>
-    <ClCompile Include="path.cpp">
-      <Filter>Receiver</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="channel.h">
