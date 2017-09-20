@@ -17,9 +17,7 @@ Decoder::Decoder() {
    _8psk_constelation->operator[](6) = complex<double>(0.0, -1.0);
    _8psk_constelation->operator[](7) = complex<double>(cos(M_PI / 4.0), -sin(M_PI / 4.0));
    decoded_data = 0;
-   
    // trellis info:
-   // next state
    output_state_.push_back({ 0,2,4,6 });
    output_state_.push_back({ 2,0,6,4 });
    output_state_.push_back({ 1,3,5,7 });
@@ -29,27 +27,19 @@ Decoder::Decoder() {
    next_state_.push_back({ 0,2,0,2 });
    next_state_.push_back({ 1,3,1,3 });
    next_state_.push_back({ 1,3,1,3 });
-   /*
-   next_state_.push_back({ 0,1,0,1 });
-   next_state_.push_back({ 2,3,2,3 }); 
-   next_state_.push_back({ 0,1,0,1 }); 
-   next_state_.push_back({ 2,3,2,3 });
-   // output state
-   output_state_.push_back({ 0,2,4,6 });
-   output_state_.push_back({ 1,3,5,7 }); 
-   output_state_.push_back({ 2,0,6,4 }); 
-   output_state_.push_back({ 3,1,7,5 });*/
    // create trellis vector
    for (int i = 0; i < num_of_states_; ++i)
       trellis_.push_back(vector<Path*>());
-   for (int i = 0; i < num_of_states_; ++i) {
-      metrics_.push_back(9999.0);
-   }
-   metrics_[0] = 0.0;
 }
 
 Decoder::~Decoder() {
    delete _8psk_constelation;
+   trellis_.clear();
+   for (int i = 0; i < trellis_.size(); ++i) {
+      for (int j = 0; j < trellis_[i].size(); ++j) {
+         delete trellis_[i][j];
+      }
+   }
 }
 
 void Decoder::decode(complex<double> input_data) {
@@ -85,13 +75,6 @@ void Decoder::decode(complex<double> input_data) {
          }
       }
        int min_index = 0;
-       /*
-       for (int j = 0; j < num_of_states_; ++j) {
-          if (trellis_[(*state_metrics)[j]->next_].size() > 0) {
-             double cost = (*state_metrics)[j]->metric_ + trellis_[from_state].back()->metric_;
-             (*state_metrics)[j]->metric_ = cost;
-          }
-       }*/
        for (int i = 0; i < num_of_states_; ++i) {
           if ((*state_metrics)[i]->metric_ < (*state_metrics)[min_index]->metric_) {
              min_index = i;
@@ -101,16 +84,10 @@ void Decoder::decode(complex<double> input_data) {
       path_metrics->push_back(minimal_path);
       pathways[from_state] = minimal_path->next_;
 
-      //trellis_[from_state].push_back(minimal_path);
    }
    for (int i = 0; i < num_of_states_; ++i) {
       trellis_[pathways[i]].push_back(path_metrics->operator[](i));
    }
-   /*
-   for (int i = 0; i < trellis_.size(); ++i) {
-      cout << "Path stats: from state: " << trellis_[i].back()->previous_ << " to state: " << trellis_[i].back()->next_ << " input: " << trellis_[i].back()->input_ << " metric: " << trellis_[i].back()->metric_ << endl;
-     
-   }*/
 }
 
 int Decoder::getDecodedData() {
